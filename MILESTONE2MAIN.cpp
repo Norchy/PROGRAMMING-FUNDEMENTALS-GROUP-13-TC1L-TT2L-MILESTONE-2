@@ -45,13 +45,37 @@ void report_missing_id (int id)
 
 int main()
 {
+    string option;
     cout << "=============================================\n";
     cout << "STUDENT ATTENDANCE TRACKER - MILESTONE 1\n";
     cout << "=============================================\n\n";
 
     cout << "---Advanced Error Handling Demo---" << endl;
+    cin >> option;
+    cout << "Option 1: Add Student" << endl;
+    cout << "Option 2: Update Student"<< endl;
 
-    int idInput = validate_student_id("Enter StudentID to update: ");
-    int idStatus = validate_status("Enter status: ");
+    if (option == "1")
+    {
+        int idInput1 = validate_student_id("Enter StudentID: ");
+        int idStatus1 = validate_status("Enter status: ");
+    }
+    else if (option == "2")
+    {
+        int idInput2 = validate_student_id("Enter StudentID to update");
+        int idStatus2 = validate_status("Enter Updated status: ");
+        bool found = false;
+        // Check if student ID exists in database
+        if (found == false)
+        {
+            report_missing_id(idInput2);
+        }
+        else
+        {
+            // update status
+        }
+    }
 
+    return 0;
+}
 }

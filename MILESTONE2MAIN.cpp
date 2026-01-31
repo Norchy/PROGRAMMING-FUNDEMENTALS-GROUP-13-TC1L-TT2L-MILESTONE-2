@@ -13,14 +13,14 @@ using namespace std;
             cout << prompt;
             if (cin >> id)
             {
-                cin.ignore();
+                cin.ignore(1000, '\n');
                 return id;
             }
             else
             {
                 cout << "ERROR: Invalid integer. Try again." << endl;
                 cin.clear();
-                cin.ignore();
+                cin.ignore(1000, '\n');
             }
             }
     }
@@ -64,16 +64,17 @@ int main()
     else if (option == "2")
     {
         int idInput2 = validate_student_id("Enter StudentID to update");
-        int idStatus2 = validate_status("Enter Updated status: ");
         bool found = false;
         for (int id: studentDB)
             {
                 if (id == idInput2)
                     {
                         found = true;
+                        int idStatus2 = validate_status("Enter Updated status: ");
                         //update status
                         break;
                     }
+                }
         if (!found)
         {
             report_missing_id(idInput2);

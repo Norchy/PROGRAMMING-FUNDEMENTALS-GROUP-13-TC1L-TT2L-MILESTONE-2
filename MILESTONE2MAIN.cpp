@@ -46,14 +46,15 @@ void report_missing_id (int id)
 int main()
 {
     string option;
+    int studentDB[] = {1001, 1002, 1003, 1004, 1005}; // Example student IDs
     cout << "=============================================\n";
     cout << "STUDENT ATTENDANCE TRACKER - MILESTONE 1\n";
     cout << "=============================================\n\n";
 
     cout << "---Advanced Error Handling Demo---" << endl;
-    cin >> option;
     cout << "Option 1: Add Student" << endl;
     cout << "Option 2: Update Student"<< endl;
+    cin >> option;
 
     if (option == "1")
     {
@@ -65,17 +66,18 @@ int main()
         int idInput2 = validate_student_id("Enter StudentID to update");
         int idStatus2 = validate_status("Enter Updated status: ");
         bool found = false;
-        // Check if student ID exists in database
-        if (found == false)
+        for (int id: studentDB)
+            {
+                if (id == idInput2)
+                    {
+                        found = true;
+                        //update status
+                        break;
+                    }
+        if (!found)
         {
             report_missing_id(idInput2);
         }
-        else
-        {
-            // update status
-        }
     }
-
     return 0;
-}
 }

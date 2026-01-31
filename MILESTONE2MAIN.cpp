@@ -2,6 +2,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <limits>
 
 using namespace std;
 
@@ -19,12 +20,21 @@ int recordCount = 0;
 string termName;
 
 /*
-    Function prototypes
+    Function prototypes (PART 1 - MEMBER)
 */
 bool openAttendanceFile(fstream &file, string filename);
 void loadAttendance(fstream &file);
 void displayAttendance();
 void saveAttendance(string filename);
+
+/*
+    Function prototypes (PART 2 - YOU)
+*/
+int findStudentIndex(int id);
+int inputInt(const string& msg);
+int inputStatus();
+void updateAttendanceRow();
+void deleteAttendanceRow();
 
 /*
     Create school term (Database)
@@ -53,44 +63,66 @@ int main() {
 
     if (openAttendanceFile(dataFile, filename)) {
         cout << "File opened successfully.\n\n";
-
         loadAttendance(dataFile);
         dataFile.close();
-
         displayAttendance();
-        saveAttendance(filename);
+    } else {
+        cout << "File not found. Starting with empty attendance sheet.\n\n";
+        recordCount = 0;
+    }
 
-        cout << "Attendance data saved back to file.\n";
-    }
-    else {
-        cout << "File open error.\n";
-    }
+    int choice;
+    do {
+        cout << "---------------------------------\n";
+        cout << "1. Display Attendance\n";
+        cout << "2. Update Attendance Row\n";
+        cout << "3. Delete Attendance Row\n";
+        cout << "0. Exit\n";
+        cout << "Choose: ";
+        cin >> choice;
+
+        switch (choice) {
+            case 1:
+                displayAttendance();
+                break;
+
+            case 2:
+                updateAttendanceRow();
+                saveAttendance(filename);
+                break;
+
+            case 3:
+                deleteAttendanceRow();
+                saveAttendance(filename);
+                break;
+
+            case 0:
+                saveAttendance(filename);
+                cout << "Attendance data saved. Exiting...\n";
+                break;
+
+            default:
+                cout << "Invalid choice.\n";
+        }
+
+    } while (choice != 0);
 
     return 0;
 }
 
 /*
-    Opens attendance file.
-    Accepts fstream object by reference.
-    Returns true if file opens successfully.
+    PART 1 FUNCTIONS (MEMBER CODE)
 */
 bool openAttendanceFile(fstream &file, string filename) {
     file.open(filename, ios::in);
-    if (file.fail())
-        return false;
-    else
-        return true;
+    return !file.fail();
 }
 
-/*
-    Loads attendance data from file into memory
-*/
 void loadAttendance(fstream &file) {
     string line;
     recordCount = 0;
 
-    // Skip header
-    getline(file, line);
+    getline(file, line); // skip header
 
     while (getline(file, line) && recordCount < 100) {
         stringstream ss(line);
@@ -108,26 +140,25 @@ void loadAttendance(fstream &file) {
     }
 }
 
-/*
-    Displays initial attendance sheet
-*/
 void displayAttendance() {
     cout << "---------------------------------\n";
     cout << "Current Attendance Sheet\n";
     cout << "---------------------------------\n";
     cout << "StudentID, Name, Status\n";
 
+    if (recordCount == 0) {
+        cout << "(empty)\n\n";
+        return;
+    }
+
     for (int i = 0; i < recordCount; i++) {
         cout << attendance[i].id << ", "
              << attendance[i].name << ", "
-             << attendance[i].status << endl;
+             << attendance[i].status << "\n";
     }
     cout << endl;
 }
 
-/*
-    Saves attendance data back to CSV file
-*/
 void saveAttendance(string filename) {
     fstream file;
     file.open(filename, ios::out);
@@ -138,6 +169,82 @@ void saveAttendance(string filename) {
              << attendance[i].name << ","
              << attendance[i].status << "\n";
     }
-
     file.close();
+}
+
+/*
+    PART 2 FUNCTIONS (YOUR PART)
+*/
+int findStudentIndex(int id) {
+    for (int i = 0; i < recordCount; i++) {
+        if (attendance[i].id == id)
+            return i;
+    }
+    return -1;
+}
+
+int inputInt(const string& msg) {
+    int value;
+    while (true) {
+        cout << msg;
+        cin >> value;
+
+        if (!cin.fail())
+            return value;
+
+        cout << "ERROR: Please enter a valid INTEGER.\n";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
+}
+
+int inputStatus() {
+    int s;
+    while (true) {
+        s = inputInt("Enter new status (1 = Present, 0 = Absent): ");
+        if (s == 0 || s == 1)
+            return s;
+
+        cout << "ERROR: Status must be 0 or 1.\n";
+    }
+}
+
+void updateAttendanceRow() {
+    cout << "------------------------------\n";
+    cout << "Update Attendance Row\n";
+    cout << "------------------------------\n";
+
+    int id = inputInt("Enter StudentID to update: ");
+    int index = findStudentIndex(id);
+
+    if (index == -1) {
+        cout << "ERROR: StudentID not found in CSV file.\n\n";
+        return;
+    }
+
+    attendance[index].status = inputStatus();
+    cout << "Row updated successfully.\n\n";
+    displayAttendance();
+}
+
+void deleteAttendanceRow() {
+    cout << "------------------------------\n";
+    cout << "Delete Attendance Row\n";
+    cout << "------------------------------\n";
+
+    int id = inputInt("Enter StudentID to delete: ");
+    int index = findStudentIndex(id);
+
+    if (index == -1) {
+        cout << "ERROR: StudentID not found in CSV file.\n\n";
+        return;
+    }
+
+    for (int i = index; i < recordCount - 1; i++) {
+        attendance[i] = attendance[i + 1];
+    }
+    recordCount--;
+
+    cout << "Row deleted successfully.\n\n";
+    displayAttendance();
 }

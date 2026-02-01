@@ -172,43 +172,10 @@ void saveAttendance(string filename) {
     file.close();
 }
 
+
 /*
-    PART 2 FUNCTIONS (YOUR PART)
+    PART 2 FUNCTIONS (You)
 */
-int findStudentIndex(int id) {
-    for (int i = 0; i < recordCount; i++) {
-        if (attendance[i].id == id)
-            return i;
-    }
-    return -1;
-}
-
-int inputInt(const string& msg) {
-    int value;
-    while (true) {
-        cout << msg;
-        cin >> value;
-
-        if (!cin.fail())
-            return value;
-
-        cout << "ERROR: Please enter a valid INTEGER.\n";
-        cin.clear();
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    }
-}
-
-int inputStatus() {
-    int s;
-    while (true) {
-        s = inputInt("Enter new status (1 = Present, 0 = Absent): ");
-        if (s == 0 || s == 1)
-            return s;
-
-        cout << "ERROR: Status must be 0 or 1.\n";
-    }
-}
-
 void updateAttendanceRow() {
     cout << "------------------------------\n";
     cout << "Update Attendance Row\n";

@@ -52,8 +52,9 @@ int main()
     cout << "=============================================\n\n";
 
     cout << "---Advanced Error Handling Demo---" << endl;
-    cout << "Option 1: Add Student" << endl;
-    cout << "Option 2: Update Student"<< endl;
+    cout << "Option 1: Add Student" << endl; // for adding new student
+    cout << "Option 2: Update Student"<< endl; // for updating existing student status
+    cout << "Select an option: ";
     cin >> option;
 
     if (option == "1")
@@ -63,7 +64,7 @@ int main()
     }
     else if (option == "2")
     {
-        int idInput2 = validate_student_id("Enter StudentID to update");
+        int idInput2 = validate_student_id("Enter StudentID to update: ");
         bool found = false;
         for (int id: studentDB)
             {

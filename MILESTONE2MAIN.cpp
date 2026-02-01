@@ -54,6 +54,17 @@ struct AttendanceRow
     string values[MAX_COLUMNS];
 };
 
+string termName;
+
+struct Student {
+    int id;
+    string name;
+    int status;
+};
+
+Student attendance[100];
+int recordCount = 0;
+
 // Member 4 - Introduction
 void createSheet(string &sheetName);
 int createColumnsExact(Column columns[]);
@@ -389,18 +400,6 @@ void displayCSV(AttendanceRow sheet[], int rowCount, Column columns[], int colCo
 
 }
 
-// Structure to store attendance record
-
-struct Student {
-    int id;
-    string name;
-    int status;
-};
-
-Student attendance[100];
-int recordCount = 0;
-string termName;
-
 
 // Function prototypes (PART 1 - MEMBER)
 
@@ -536,7 +535,7 @@ void introduction(string &sheetName, Column columns[], AttendanceRow attendanceS
 
         while (true)
         {
-            cout << "\nDo you want to create a new one?(Yes/No)" << endl;
+            cout << "\nDo you want to return to the main menu?(Yes/No)" << endl;
             cin >> answer;
 
 
@@ -560,6 +559,7 @@ void introduction(string &sheetName, Column columns[], AttendanceRow attendanceS
                 cout << "Invalid Input. Try again." << endl;
             }
         }
+    }
 
     else if (option == "2")
     {
@@ -573,7 +573,7 @@ void introduction(string &sheetName, Column columns[], AttendanceRow attendanceS
         this_thread::sleep_for(chrono::seconds(2));
         cout << "============================================\n" << endl;
 
-        introduction();
+        introduction(sheetName, columns, attendanceSheet, rowCount);
     }
 
     else if (option == "4")
@@ -582,7 +582,8 @@ void introduction(string &sheetName, Column columns[], AttendanceRow attendanceS
         this_thread::sleep_for(chrono::seconds(2));
         cout << "============================================\n" << endl;
 
-        introduction();
+        introduction(sheetName, columns, attendanceSheet, rowCount);
+
     }
 
 
@@ -596,16 +597,18 @@ void introduction(string &sheetName, Column columns[], AttendanceRow attendanceS
     {
         cout << "Invalid Input. Please try again." << endl;
         cout << "============================================\n" << endl;
-        introduction();
+
+        introduction(sheetName, columns, attendanceSheet, rowCount);
+
     }
 
 }
 
 
 
-/*
-    PART 1 FUNCTIONS (MEMBER CODE)
-*/
+
+// PART 1 FUNCTIONS (MEMBER CODE)
+
 bool openAttendanceFile(fstream &file, string filename) {
     file.open(filename, ios::in);
     return !file.fail();
@@ -751,7 +754,13 @@ int main() {
     cout << " STUDENT ATTENDANCE TRACKER - MILESTONE 2\n";
     cout << "============================================\n\n";
 
-    introduction();
+    string sheetName;
+    Column columns[MAX_COLUMNS];
+    AttendanceRow attendanceSheet[MAX_ROWS];
+    int rowCount = 0;
+
+
+    introduction(sheetName, columns, attendanceSheet, rowCount);
 
 
     return 0;

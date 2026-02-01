@@ -553,7 +553,13 @@ void deleteRowCSV(AttendanceRow sheet[], int &rowCount)
         sheet[i] = sheet[i + 1];
 
     rowCount--;
+
+    // Member 4 - it displays the updated row
     cout << "Row deleted successfully.\n";
+
+    cout << "--------------------------------\n";
+    cout << "Count Rows\n";
+    cout << "Number of rows: " << rowCount << "\n" <<endl;
 }
 
 

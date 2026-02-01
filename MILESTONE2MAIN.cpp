@@ -3,10 +3,9 @@
 #include <sstream>
 #include <string>
 #include <limits>
-#include <thread> // for time delay
-#include <chrono> // for time delay
-#include <iomanip> // csv mode alignments
-#include <string>
+#include <thread>   // for time delay
+#include <chrono>   // for time delay
+#include <iomanip>  // csv mode alignments
 #include <cctype>   // for isdigit()
 
 using namespace std;
@@ -29,19 +28,25 @@ using namespace std;
 // Member_4: Main Program, Row Count, Documentation, Milestone 1 Data saving to Mileston 2
 // *********************************************************
 
-
+// =====================
+// Global constants
+// =====================
 const int MAX_COLUMNS = 10;
 const int MAX_ROWS = 100;
-const int MAX_INPUT_ROWS = 10; // NEW: max rows user can input per sheet
+const int MAX_INPUT_ROWS = 10;
 
-// Member 1 structure
+// ===============================
+// Member 1 (ARFA): Structures
+// ===============================
 struct Column
 {
     string name;
     string type; // INT or TEXT
 };
 
-// Member 2 structure
+// ===============================
+// Member 2 (EMIL): Structures
+// ===============================
 struct Attendance
 {
     int studentID;
@@ -54,6 +59,9 @@ struct AttendanceRow
     string values[MAX_COLUMNS];
 };
 
+// ===============================
+// Member 4 (LUQMAN): Globals
+// ===============================
 string termName;
 
 struct Student {
@@ -65,13 +73,20 @@ struct Student {
 Student attendance[100];
 int recordCount = 0;
 
-// Member 4 - Introduction
+// ===============================
+// Function prototypes (Milestone 1)
+// ===============================
 void createSheet(string &sheetName);
 int createColumnsExact(Column columns[]);
-int getRowCountFromUser(); // NEW
+int getRowCountFromUser();
 void insertAttendanceRow(AttendanceRow sheet[], int &rowCount, Column columns[], int colCount);
 void displayCSV(AttendanceRow sheet[], int rowCount, Column columns[], int colCount);
 
+// ===============================
+// Member 3 (HANNAN): Helper utils
+// ===============================
+
+// Convert string to lowercase (for comparisons)
 static string toLowerStr(string s)
 {
     for (char &c : s)
@@ -79,6 +94,7 @@ static string toLowerStr(string s)
     return s;
 }
 
+// Check if a string is a valid integer (digits only)
 static bool isValidIntString(const string &s)
 {
     if (s.empty()) return false;
@@ -90,6 +106,7 @@ static bool isValidIntString(const string &s)
     return true;
 }
 
+// Trim whitespace from both ends
 static string trim(const string &s)
 {
     size_t start = s.find_first_not_of(" \t\r\n");
@@ -98,6 +115,7 @@ static string trim(const string &s)
     return s.substr(start, end - start + 1);
 }
 
+// Parse format like: "Name (INT)" or "Name (TEXT)"
 static bool parseColumnDefinition(const string &input, string &colName, string &colType)
 {
     string s = trim(input);
@@ -126,10 +144,11 @@ static bool parseColumnDefinition(const string &input, string &colName, string &
     return true;
 }
 
+// ==========================================
+// Member 1 (ARFA): Create attendance sheet
+// ==========================================
 
-// ===============================
-// Member 1: Create attendance sheet
-// ===============================
+// Create sheet name with basic validation
 void createSheet(string &sheetName)
 {
     cout << "=============================================\n";
@@ -139,7 +158,7 @@ void createSheet(string &sheetName)
     if (sheetName.empty())
     {
         cout << "Error: Sheet name cannot be empty.\n";
-        createSheet(sheetName); // ask again
+        createSheet(sheetName);
     }
     else
     {
@@ -147,12 +166,7 @@ void createSheet(string &sheetName)
     }
 }
 
-/*
-    Member 1 (Exact sample behaviour):
-    - Only accepts 3 columns
-    - Prompts for the exact 3 column "names" shown in sample output
-    - Automatically sets type according to the fixed format
-*/
+// Create columns with (INT)/(TEXT) validation (max 10)
 int createColumnsExact(Column columns[])
 {
     string numCols;
@@ -186,7 +200,8 @@ int createColumnsExact(Column columns[])
     {
         while (true)
         {
-            cout << "\nEnter column " << (i + 1) << " name (Ensure to put (INT) or (TEXT) at the end of the name for column types): ";
+            cout << "\nEnter column " << (i + 1)
+                 << " name (Ensure to put (INT) or (TEXT) at the end of the name for column types): ";
             string input;
             getline(cin, input);
 
@@ -207,7 +222,11 @@ int createColumnsExact(Column columns[])
     return colCount;
 }
 
-// NEW: let user choose how many rows to insert (max 10)
+// ==========================================
+// Member 4 (LUQMAN): Row count input
+// ==========================================
+
+// Let user choose how many rows to insert (max 10)
 int getRowCountFromUser()
 {
     string input;
@@ -239,9 +258,11 @@ int getRowCountFromUser()
     return rows;
 }
 
-// ===============================
-// Member 2: Insert attendance row
-// ===============================
+// ==========================================
+// Member 2 (EMIL): Insert attendance row
+// ==========================================
+
+// Insert row with type checking and status validation
 void insertAttendanceRow(AttendanceRow sheet[], int &rowCount, Column columns[], int colCount)
 {
     if (rowCount >= MAX_ROWS)
@@ -258,26 +279,8 @@ void insertAttendanceRow(AttendanceRow sheet[], int &rowCount, Column columns[],
     {
         string colNameLower = toLowerStr(columns[i].name);
 
-        if (colNameLower == "studentid")
-        {
-            while (true)
-            {
-                cout << "Enter StudentID: " << flush;
-                string v;
-                getline(cin, v);
-                v = trim(v);
-
-                if (!isValidIntString(v))
-                {
-                    cout << "Error: Invalid INT value. Please enter a number.\n";
-                    continue;
-                }
-
-                sheet[rowCount].values[i] = v;
-                break;
-            }
-        }
-        else if (colNameLower == "status")
+        // Special rule: status must be 0 or 1 (still works even if user names it "STATUS")
+        if (colNameLower == "status")
         {
             while (true)
             {
@@ -295,46 +298,46 @@ void insertAttendanceRow(AttendanceRow sheet[], int &rowCount, Column columns[],
                 sheet[rowCount].values[i] = v;
                 break;
             }
+            continue;
         }
-        else
+
+        // Generic INT/TEXT validation for all other columns
+        if (columns[i].type == "INT")
         {
-            if (columns[i].type == "INT")
+            while (true)
             {
-                while (true)
+                cout << "Enter " << columns[i].name << ": " << flush;
+                string v;
+                getline(cin, v);
+                v = trim(v);
+
+                if (!isValidIntString(v))
                 {
-                    cout << "Enter " << columns[i].name << ": " << flush;
-                    string v;
-                    getline(cin, v);
-                    v = trim(v);
-
-                    if (!isValidIntString(v))
-                    {
-                        cout << "Error: Invalid INT value. Please enter a number.\n";
-                        continue;
-                    }
-
-                    sheet[rowCount].values[i] = v;
-                    break;
+                    cout << "Error: Invalid INT value. Please enter a number.\n";
+                    continue;
                 }
+
+                sheet[rowCount].values[i] = v;
+                break;
             }
-            else
+        }
+        else // TEXT
+        {
+            while (true)
             {
-                while (true)
+                cout << "Enter " << columns[i].name << ": " << flush;
+                string v;
+                getline(cin, v);
+                v = trim(v);
+
+                if (v.empty())
                 {
-                    cout << "Enter " << columns[i].name << ": " << flush;
-                    string v;
-                    getline(cin, v);
-                    v = trim(v);
-
-                    if (v.empty())
-                    {
-                        cout << "Error: TEXT value cannot be empty.\n";
-                        continue;
-                    }
-
-                    sheet[rowCount].values[i] = v;
-                    break;
+                    cout << "Error: TEXT value cannot be empty.\n";
+                    continue;
                 }
+
+                sheet[rowCount].values[i] = v;
+                break;
             }
         }
     }
@@ -343,43 +346,45 @@ void insertAttendanceRow(AttendanceRow sheet[], int &rowCount, Column columns[],
     cout << "Row inserted successfully.\n";
 }
 
+// ==========================================
+// Member 3 (HANNAN): Display CSV
+// ==========================================
+
+// Display sheet in CSV mode with auto spacing
 void displayCSV(AttendanceRow sheet[], int rowCount, Column columns[], int colCount)
 {
     if (rowCount == 0)
-        {
-            cout << "-------------------------" << endl;
-            cout << "Attendance sheet is empty" << endl;
-            cout << "-------------------------" << endl;
-            return;
-        }
-
+    {
+        cout << "-------------------------\n";
+        cout << "Attendance sheet is empty\n";
+        cout << "-------------------------\n";
+        return;
+    }
 
     cout << "=============================================\n\n";
-    cout << "--------------------------------" << endl;
-    cout << "VIew Attendance Sheet (CSV Mode)" << endl;
-    cout << "--------------------------------" << endl;
+    cout << "--------------------------------\n";
+    cout << "VIew Attendance Sheet (CSV Mode)\n";
+    cout << "--------------------------------\n";
 
     int width[MAX_COLUMNS];
 
-    //Automatic determine width for each coloumn based on user input
     for (int j = 0; j < colCount; j++)
-        width[j] = columns[j].name.length();
+        width[j] = (int)columns[j].name.length();
 
     for (int i = 0; i < rowCount; i++)
     {
         for (int j = 0; j < colCount; j++)
         {
-            int len = sheet[i].values[j].length();
+            int len = (int)sheet[i].values[j].length();
             if (len > width[j])
                 width[j] = len;
         }
     }
 
-    // Padding so user input tak dekat dengan comma and centred
     for (int j = 0; j < colCount; j++)
         width[j] += 1;
 
-    // header print
+    // header
     for (int j = 0; j < colCount; j++)
     {
         cout << left << setw(width[j]) << columns[j].name;
@@ -387,7 +392,7 @@ void displayCSV(AttendanceRow sheet[], int rowCount, Column columns[], int colCo
     }
     cout << endl;
 
-    // row printing
+    // rows
     for (int i = 0; i < rowCount; i++)
     {
         for (int j = 0; j < colCount; j++)
@@ -397,29 +402,27 @@ void displayCSV(AttendanceRow sheet[], int rowCount, Column columns[], int colCo
         }
         cout << endl;
     }
-
 }
 
-
-// MILESTONE 2 CODES //
-
-// Function prototypes (PART 1 - MEMBER)
-
+// =======================================================
+// MILESTONE 2: File Handling (PART 1 - MEMBER)
+// =======================================================
 bool openAttendanceFile(fstream &file, string filename);
 void loadAttendance(fstream &file);
 void displayAttendance();
 void saveAttendance(string filename);
 
+// ==========================================
+// Member 4 (LUQMAN): Description + Term
+// ==========================================
 
-void StudentTrackerDescription () // Description display for main menu
+void StudentTrackerDescription()
 {
     cout << "Student Attendance Tracker is a C++ program that was built for tracking attendance." << endl;
     cout << "It makes tracking attendance more efficient by storing student datas." << endl;
 }
 
-
-
-void createSchoolTerm() // Create school term (Database)
+void createSchoolTerm()
 {
     cout << "Create School Term (Database)\n";
     cout << "---------------------------------\n";
@@ -428,6 +431,11 @@ void createSchoolTerm() // Create school term (Database)
     cout << "Database \"" << termName << "\" created and loaded.\n\n";
 }
 
+// ==========================================
+// Member 1 (ARFA): Save/Load sheet to CSV
+// ==========================================
+
+// Save sheet to CSV and include type in header: "ColName (INT)"
 void saveSheetToFile(string filename,
                      AttendanceRow sheet[],
                      int rowCount,
@@ -436,10 +444,10 @@ void saveSheetToFile(string filename,
 {
     ofstream file(filename);
 
-    // header
+    // header (store name + type)
     for (int i = 0; i < colCount; i++)
     {
-        file << columns[i].name;
+        file << columns[i].name << " (" << columns[i].type << ")";
         if (i != colCount - 1) file << ",";
     }
     file << "\n";
@@ -458,6 +466,7 @@ void saveSheetToFile(string filename,
     file.close();
 }
 
+// Load sheet and restore types from header when possible
 void loadSheetFromFile(string filename,
                        AttendanceRow sheet[],
                        int &rowCount,
@@ -475,10 +484,31 @@ void loadSheetFromFile(string filename,
     {
         stringstream ss(line);
         string col;
+
         while (getline(ss, col, ',') && colCount < MAX_COLUMNS)
         {
-            columns[colCount].name = trim(col);
-            columns[colCount].type = "TEXT"; // flexible default
+            col = trim(col);
+
+            string nameParsed, typeParsed;
+
+            // If header has "(INT)/(TEXT)", we restore it
+            if (parseColumnDefinition(col, nameParsed, typeParsed))
+            {
+                columns[colCount].name = nameParsed;
+                columns[colCount].type = typeParsed;
+            }
+            else
+            {
+                // For old CSV without types, store name and guess type for common columns
+                columns[colCount].name = col;
+                string lower = toLowerStr(col);
+
+                if (lower == "studentid" || lower == "status")
+                    columns[colCount].type = "INT";
+                else
+                    columns[colCount].type = "TEXT";
+            }
+
             colCount++;
         }
     }
@@ -498,46 +528,116 @@ void loadSheetFromFile(string filename,
     file.close();
 }
 
-// Function prototypes (PART 2)
+// ==========================================
+// Member 2 (EMIL): Update & Delete (generic type enforcement)
+// ==========================================
 
-int findStudentIndex(int id);
-int inputInt(const string& msg);
-int inputStatus();
-void updateAttendanceRow();
-void deleteAttendanceRow();
-
-
-// PART 2 FUNCTIONS 
-
+// Update any cell based on column type (INT/TEXT), regardless of column name
 void updateRowCSV(AttendanceRow sheet[], int rowCount, Column columns[], int colCount)
 {
-    int r, c;
-    cout << "Enter row number to update (1-" << rowCount << "): ";
-    cin >> r;
-
-    if (r < 1 || r > rowCount) {
-        cout << "Invalid row.\n";
+    if (rowCount <= 0)
+    {
+        cout << "-------------------------\n";
+        cout << "Attendance sheet is empty\n";
+        cout << "-------------------------\n";
         return;
     }
 
+    string rStr, cStr;
+    int r = 0, c = 0;
+
+    // row number validation
+    while (true)
+    {
+        cout << "Enter row number to update (1-" << rowCount << "): ";
+        cin >> rStr;
+
+        if (!isValidIntString(rStr))
+        {
+            cout << "Error: Please enter a valid number.\n";
+            continue;
+        }
+
+        r = stoi(rStr);
+        if (r < 1 || r > rowCount)
+        {
+            cout << "Error: Invalid row.\n";
+            continue;
+        }
+        break;
+    }
+
+    // choose column
     cout << "Choose column:\n";
     for (int i = 0; i < colCount; i++)
-        cout << i + 1 << ". " << columns[i].name << endl;
+        cout << i + 1 << ". " << columns[i].name << " (" << columns[i].type << ")\n";
 
-    cin >> c;
+    while (true)
+    {
+        cout << "Enter column number (1-" << colCount << "): ";
+        cin >> cStr;
 
-    if (c < 1 || c > colCount) {
-        cout << "Invalid column.\n";
-        return;
+        if (!isValidIntString(cStr))
+        {
+            cout << "Error: Please enter a valid number.\n";
+            continue;
+        }
+
+        c = stoi(cStr);
+        if (c < 1 || c > colCount)
+        {
+            cout << "Error: Invalid column.\n";
+            continue;
+        }
+        break;
     }
 
-    cin.ignore();
-    cout << "Enter new value: ";
-    getline(cin, sheet[r - 1].values[c - 1]);
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
+    // new value validation based on column type
+    string newVal;
+    string colType = columns[c - 1].type;
+
+    while (true)
+    {
+        cout << "Enter new value: ";
+        getline(cin, newVal);
+        newVal = trim(newVal);
+
+        if (colType == "INT")
+        {
+            if (!isValidIntString(newVal))
+            {
+                cout << "Error: This column only accepts INTEGER values.\n";
+                continue;
+            }
+            break;
+        }
+        else if (colType == "TEXT")
+        {
+            if (newVal.empty())
+            {
+                cout << "Error: TEXT value cannot be empty.\n";
+                continue;
+            }
+            break;
+        }
+        else
+        {
+            if (newVal.empty())
+            {
+                cout << "Error: Value cannot be empty.\n";
+                continue;
+            }
+            break;
+        }
+    }
+
+    sheet[r - 1].values[c - 1] = newVal;
     cout << "Row updated successfully.\n";
 }
 
+// Delete row with basic range check
 void deleteRowCSV(AttendanceRow sheet[], int &rowCount)
 {
     int r;
@@ -554,16 +654,17 @@ void deleteRowCSV(AttendanceRow sheet[], int &rowCount)
 
     rowCount--;
 
-    // Member 4 - it displays the updated row
     cout << "Row deleted successfully.\n";
-
     cout << "--------------------------------\n";
     cout << "Count Rows\n";
-    cout << "Number of rows: " << rowCount << "\n" <<endl;
+    cout << "Number of rows: " << rowCount << "\n" << endl;
 }
 
+// ==========================================
+// Member 4 (LUQMAN): Program flow (menus)
+// ==========================================
 
-void IntroductionProcess(string &sheetName,Column columns[], AttendanceRow attendanceSheet[], int &rowCount) // Introduction process so the program runs after user make their choice
+void IntroductionProcess(string &sheetName, Column columns[], AttendanceRow attendanceSheet[], int &rowCount)
 {
     fstream dataFile;
     string filename;
@@ -574,16 +675,15 @@ void IntroductionProcess(string &sheetName,Column columns[], AttendanceRow atten
     cout << "Enter attendance filename: ";
     cin >> filename;
 
-    int colCount; loadSheetFromFile(sheetName, attendanceSheet, rowCount, columns, colCount);
+    // Load using the filename user typed (so data will persist after restart)
+    int colCount;
+    loadSheetFromFile(filename, attendanceSheet, rowCount, columns, colCount);
     displayCSV(attendanceSheet, rowCount, columns, colCount);
-
 
     if (openAttendanceFile(dataFile, filename)) {
         cout << "File opened successfully.\n\n";
         dataFile.close();
-
     }
-
     else
     {
         cout << "File not found. Starting with empty attendance sheet.\n\n";
@@ -607,16 +707,16 @@ void IntroductionProcess(string &sheetName,Column columns[], AttendanceRow atten
 
             case 2:
                 updateRowCSV(attendanceSheet, rowCount, columns, colCount);
-                saveAttendance(filename);
+                saveSheetToFile(filename, attendanceSheet, rowCount, columns, colCount);
                 break;
 
             case 3:
                 deleteRowCSV(attendanceSheet, rowCount);
-                saveAttendance(filename);
+                saveSheetToFile(filename, attendanceSheet, rowCount, columns, colCount);
                 break;
 
             case 4:
-                saveSheetToFile(sheetName, attendanceSheet, rowCount, columns, colCount);
+                saveSheetToFile(filename, attendanceSheet, rowCount, columns, colCount);
                 cout << "Attendance data saved. Exiting...\n";
                 return;
 
@@ -627,10 +727,8 @@ void IntroductionProcess(string &sheetName,Column columns[], AttendanceRow atten
     } while (choice != 0);
 }
 
-void introduction(string &sheetName, Column columns[], AttendanceRow attendanceSheet[], int &rowCount) // function that holds the entire program
+void introduction(string &sheetName, Column columns[], AttendanceRow attendanceSheet[], int &rowCount)
 {
-    fstream dataFile;
-    string filename;
     string option;
 
     cout << "\nWeclome to the 'Student Attendance Tracker'. Please select an option below. (1-5)" << endl;
@@ -648,23 +746,25 @@ void introduction(string &sheetName, Column columns[], AttendanceRow attendanceS
         cin.ignore();
         string answer;
 
-        // Member 1
+        // Member 1: create sheet + columns
         createSheet(sheetName);
         int colCount = createColumnsExact(columns);
 
-        // NEW: user define how many rows to insert (max 10)
+        // Member 4: choose number of rows to insert
         int totalRows = getRowCountFromUser();
-        cin.ignore(); // consume newline after cin >>
+        cin.ignore();
 
-        // Member 2 (insert based on user input rows)
+        // Member 2: insert rows
         for (int i = 0; i < totalRows; i++)
         {
             insertAttendanceRow(attendanceSheet, rowCount, columns, colCount);
         }
 
-        // Member 3
+        // Member 3: display CSV
         displayCSV(attendanceSheet, rowCount, columns, colCount);
 
+        // Save using sheetName (kept same as your original behaviour)
+        // Note: this creates a file named exactly like sheetName (including spaces if any)
         saveSheetToFile(sheetName, attendanceSheet, rowCount, columns, colCount);
 
         this_thread::sleep_for(chrono::seconds(2));
@@ -674,17 +774,14 @@ void introduction(string &sheetName, Column columns[], AttendanceRow attendanceS
             cout << "\nDo you want to return to the main menu?(Yes/No)" << endl;
             cin >> answer;
 
-
-            for (char &c : answer) //FUNCTION TO LOWERCASE THE STRING
+            for (char &c : answer)
                 c = tolower(static_cast<unsigned char>(c));
-
 
             if (answer == "yes")
             {
                 introduction(sheetName, columns, attendanceSheet, rowCount);
                 return;
             }
-
             else if (answer == "no")
             {
                 cout << "Have a good day!" << endl;
@@ -696,13 +793,11 @@ void introduction(string &sheetName, Column columns[], AttendanceRow attendanceS
             }
         }
     }
-
     else if (option == "2")
     {
         cout << "============================================\n" << endl;
         IntroductionProcess(sheetName, columns, attendanceSheet, rowCount);
     }
-
     else if (option == "3")
     {
         StudentTrackerDescription();
@@ -711,26 +806,23 @@ void introduction(string &sheetName, Column columns[], AttendanceRow attendanceS
 
         introduction(sheetName, columns, attendanceSheet, rowCount);
     }
-
     else if (option == "4")
     {
         cout << "This early?! Goodbye." << endl;
         return;
     }
-
     else
     {
         cout << "Invalid Input. Please try again." << endl;
         cout << "============================================\n" << endl;
 
         introduction(sheetName, columns, attendanceSheet, rowCount);
-
     }
-
 }
 
-
-// PART 1 FUNCTIONS (MEMBER CODE)
+// ==========================================
+// PART 1 (MEMBER): attendance[] file functions
+// ==========================================
 
 bool openAttendanceFile(fstream &file, string filename) {
     file.open(filename, ios::in);
@@ -791,9 +883,9 @@ void saveAttendance(string filename) {
     file.close();
 }
 
-
-
-//  PART 3 FUNCTIONS
+// ==========================================
+// PART 3 (MEMBER): helper functions kept
+// ==========================================
 
 int findStudentIndex(int id) {
     for (int i = 0; i < recordCount; i++) {
@@ -829,8 +921,11 @@ int inputStatus() {
     }
 }
 
-int main() {
-
+// ==========================================
+// Member 4 (LUQMAN): main()
+// ==========================================
+int main()
+{
     cout << "============================================\n";
     cout << " STUDENT ATTENDANCE TRACKER - MILESTONE 2\n";
     cout << "============================================\n\n";
@@ -840,10 +935,6 @@ int main() {
     AttendanceRow attendanceSheet[MAX_ROWS];
     int rowCount = 0;
 
-
     introduction(sheetName, columns, attendanceSheet, rowCount);
-
-
     return 0;
 }
-

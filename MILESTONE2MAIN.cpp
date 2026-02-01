@@ -507,7 +507,7 @@ void updateAttendanceRow();
 void deleteAttendanceRow();
 
 
-// PART 2 FUNCTIONS (You)
+// PART 2 FUNCTIONS 
 
 void updateRowCSV(AttendanceRow sheet[], int rowCount, Column columns[], int colCount)
 {

@@ -12,21 +12,21 @@
 using namespace std;
 
 // *********************************************************
-// Program: main.cpp
+// Program: TC1L_GROUP13_main.cpp
 // Course: CCP6114 Programming Fundamentals
 // Lecture Class: TC1L
 // Tutorial Class: TT2L
 // Trimester: 2530
-// Member_1: 252UC2425R | Arfa Mirza Bin Shamsul Safuan | arfa.mirza.shamsul1@student.edu.my | 013-268 9303
-// Member_2: 252UC241Q3 | EMIL SHADIQ BIN ISKANDAR | emil.shadiq.iskandar1@mmu.student.edu.my | 011-1125-4415
-// Member_3: 252UC24246 | Dairell Hannan bin Ahmad Nizam | dairell.hannan.ahmad1@student.mmu.edu.my | 019-880 6564
+// Member_1: 252UC2425R | ARFA MIRZA BIN SHAMSUL SAFUAN | ARFA.MIRZA.SHAMSUL1@student.edu.my | 013-268 9303
+// Member_2: 252UC241Q3 | EMIL SHADIQ BIN ISKANDAR | EMIL.SHADIQ.ISKANDAR1@mmu.student.edu.my | 011-1125-4415
+// Member_3: 252UC24246 | DAIRELL HANNAN BIN AHMAD NIZAM | DAIRELL.HANNAN.AHMAD1@student.mmu.edu.my | 019-880 6564
 // Member_4: 252UC241MF | LUQMAN HAKIM BIN MUHAMMAD FAMHI | LUQMAN.HAKIM.MUHAMMAD1@student.mmu.edu.my | 013-366-8674
 // *********************************************************
 // Task Distribution
-// Member_1: Sheet Creation and Data Structure
-// Member_2: Attendance Rows
-// Member_3: CSV View Mode + Formatting
-// Member_4: Error Handling and Documentation
+// Member_1: Database & File Input/Output Lead, Documentation
+// Member_2: Update & Delete Logic, Documentation
+// Member_3: Validation & Error Handling, Documentation
+// Member_4: Main Program, Row Count, Documentation, Milestone 1 Data saving to Mileston 2
 // *********************************************************
 
 
@@ -401,6 +401,8 @@ void displayCSV(AttendanceRow sheet[], int rowCount, Column columns[], int colCo
 }
 
 
+// MILESTONE 2 CODES //
+
 // Function prototypes (PART 1 - MEMBER)
 
 bool openAttendanceFile(fstream &file, string filename);
@@ -426,6 +428,75 @@ void createSchoolTerm() // Create school term (Database)
     cout << "Database \"" << termName << "\" created and loaded.\n\n";
 }
 
+void saveSheetToFile(string filename,
+                     AttendanceRow sheet[],
+                     int rowCount,
+                     Column columns[],
+                     int colCount)
+{
+    ofstream file(filename);
+
+    // header
+    for (int i = 0; i < colCount; i++)
+    {
+        file << columns[i].name;
+        if (i != colCount - 1) file << ",";
+    }
+    file << "\n";
+
+    // rows
+    for (int r = 0; r < rowCount; r++)
+    {
+        for (int c = 0; c < colCount; c++)
+        {
+            file << sheet[r].values[c];
+            if (c != colCount - 1) file << ",";
+        }
+        file << "\n";
+    }
+
+    file.close();
+}
+
+void loadSheetFromFile(string filename,
+                       AttendanceRow sheet[],
+                       int &rowCount,
+                       Column columns[],
+                       int &colCount)
+{
+    ifstream file(filename);
+    string line;
+
+    rowCount = 0;
+    colCount = 0;
+
+    // read header
+    if (getline(file, line))
+    {
+        stringstream ss(line);
+        string col;
+        while (getline(ss, col, ',') && colCount < MAX_COLUMNS)
+        {
+            columns[colCount].name = trim(col);
+            columns[colCount].type = "TEXT"; // flexible default
+            colCount++;
+        }
+    }
+
+    // read rows
+    while (getline(file, line) && rowCount < MAX_ROWS)
+    {
+        stringstream ss(line);
+        for (int c = 0; c < colCount; c++)
+        {
+            getline(ss, sheet[rowCount].values[c], ',');
+            sheet[rowCount].values[c] = trim(sheet[rowCount].values[c]);
+        }
+        rowCount++;
+    }
+
+    file.close();
+}
 
 // Function prototypes (PART 2)
 
@@ -436,7 +507,57 @@ void updateAttendanceRow();
 void deleteAttendanceRow();
 
 
-void IntroductionProcess() // Introduction process so the program runs after user make their choice
+// PART 2 FUNCTIONS (You)
+
+void updateRowCSV(AttendanceRow sheet[], int rowCount, Column columns[], int colCount)
+{
+    int r, c;
+    cout << "Enter row number to update (1-" << rowCount << "): ";
+    cin >> r;
+
+    if (r < 1 || r > rowCount) {
+        cout << "Invalid row.\n";
+        return;
+    }
+
+    cout << "Choose column:\n";
+    for (int i = 0; i < colCount; i++)
+        cout << i + 1 << ". " << columns[i].name << endl;
+
+    cin >> c;
+
+    if (c < 1 || c > colCount) {
+        cout << "Invalid column.\n";
+        return;
+    }
+
+    cin.ignore();
+    cout << "Enter new value: ";
+    getline(cin, sheet[r - 1].values[c - 1]);
+
+    cout << "Row updated successfully.\n";
+}
+
+void deleteRowCSV(AttendanceRow sheet[], int &rowCount)
+{
+    int r;
+    cout << "Enter row number to delete (1-" << rowCount << "): ";
+    cin >> r;
+
+    if (r < 1 || r > rowCount) {
+        cout << "Invalid row.\n";
+        return;
+    }
+
+    for (int i = r - 1; i < rowCount - 1; i++)
+        sheet[i] = sheet[i + 1];
+
+    rowCount--;
+    cout << "Row deleted successfully.\n";
+}
+
+
+void IntroductionProcess(string &sheetName,Column columns[], AttendanceRow attendanceSheet[], int &rowCount) // Introduction process so the program runs after user make their choice
 {
     fstream dataFile;
     string filename;
@@ -447,12 +568,18 @@ void IntroductionProcess() // Introduction process so the program runs after use
     cout << "Enter attendance filename: ";
     cin >> filename;
 
+    int colCount; loadSheetFromFile(sheetName, attendanceSheet, rowCount, columns, colCount);
+    displayCSV(attendanceSheet, rowCount, columns, colCount);
+
+
     if (openAttendanceFile(dataFile, filename)) {
         cout << "File opened successfully.\n\n";
-        loadAttendance(dataFile);
         dataFile.close();
-        displayAttendance();
-    } else {
+
+    }
+
+    else
+    {
         cout << "File not found. Starting with empty attendance sheet.\n\n";
         recordCount = 0;
     }
@@ -463,29 +590,29 @@ void IntroductionProcess() // Introduction process so the program runs after use
         cout << "1. Display Attendance\n";
         cout << "2. Update Attendance Row\n";
         cout << "3. Delete Attendance Row\n";
-        cout << "0. Exit\n";
+        cout << "4. Exit\n";
         cout << "Choose: ";
         cin >> choice;
 
         switch (choice) {
             case 1:
-                displayAttendance();
+                displayCSV(attendanceSheet, rowCount, columns, colCount);
                 break;
 
             case 2:
-                updateAttendanceRow();
+                updateRowCSV(attendanceSheet, rowCount, columns, colCount);
                 saveAttendance(filename);
                 break;
 
             case 3:
-                deleteAttendanceRow();
+                deleteRowCSV(attendanceSheet, rowCount);
                 saveAttendance(filename);
                 break;
 
-            case 0:
-                saveAttendance(filename);
+            case 4:
+                saveSheetToFile(sheetName, attendanceSheet, rowCount, columns, colCount);
                 cout << "Attendance data saved. Exiting...\n";
-                break;
+                return;
 
             default:
                 cout << "Invalid choice.\n";
@@ -504,13 +631,14 @@ void introduction(string &sheetName, Column columns[], AttendanceRow attendanceS
     cout << "Option 1: Create Sheet" << endl;
     cout << "Option 2: Create School Term Database" << endl;
     cout << "Option 3: What is Student Attendance Tracker" << endl;
-    cout << "Option 4: View Row Counts" << endl;
-    cout << "Option 5: Quit" << endl;
+    cout << "Option 4: Quit" << endl;
 
     cin >> option;
 
     if (option == "1")
     {
+        rowCount = 0;
+
         cin.ignore();
         string answer;
 
@@ -530,6 +658,8 @@ void introduction(string &sheetName, Column columns[], AttendanceRow attendanceS
 
         // Member 3
         displayCSV(attendanceSheet, rowCount, columns, colCount);
+
+        saveSheetToFile(sheetName, attendanceSheet, rowCount, columns, colCount);
 
         this_thread::sleep_for(chrono::seconds(2));
 
@@ -564,7 +694,7 @@ void introduction(string &sheetName, Column columns[], AttendanceRow attendanceS
     else if (option == "2")
     {
         cout << "============================================\n" << endl;
-        IntroductionProcess();
+        IntroductionProcess(sheetName, columns, attendanceSheet, rowCount);
     }
 
     else if (option == "3")
@@ -577,17 +707,6 @@ void introduction(string &sheetName, Column columns[], AttendanceRow attendanceS
     }
 
     else if (option == "4")
-    {
-        cout << "WIP" << endl;
-        this_thread::sleep_for(chrono::seconds(2));
-        cout << "============================================\n" << endl;
-
-        introduction(sheetName, columns, attendanceSheet, rowCount);
-
-    }
-
-
-    else if (option == "5")
     {
         cout << "This early?! Goodbye." << endl;
         return;
@@ -603,8 +722,6 @@ void introduction(string &sheetName, Column columns[], AttendanceRow attendanceS
     }
 
 }
-
-
 
 
 // PART 1 FUNCTIONS (MEMBER CODE)
@@ -669,51 +786,9 @@ void saveAttendance(string filename) {
 }
 
 
-/*
-    PART 2 FUNCTIONS (You)
-*/
-void updateAttendanceRow() {
-    cout << "------------------------------\n";
-    cout << "Update Attendance Row\n";
-    cout << "------------------------------\n";
 
-    int id = inputInt("Enter StudentID to update: ");
-    int index = findStudentIndex(id);
+//  PART 3 FUNCTIONS
 
-    if (index == -1) {
-        cout << "ERROR: StudentID not found in CSV file.\n\n";
-        return;
-    }
-
-    attendance[index].status = inputStatus();
-    cout << "Row updated successfully.\n\n";
-    displayAttendance();
-}
-
-void deleteAttendanceRow() {
-    cout << "------------------------------\n";
-    cout << "Delete Attendance Row\n";
-    cout << "------------------------------\n";
-
-    int id = inputInt("Enter StudentID to delete: ");
-    int index = findStudentIndex(id);
-
-    if (index == -1) {
-        cout << "ERROR: StudentID not found in CSV file.\n\n";
-        return;
-    }
-
-    for (int i = index; i < recordCount - 1; i++) {
-        attendance[i] = attendance[i + 1];
-    }
-    recordCount--;
-
-    cout << "Row deleted successfully.\n\n";
-    displayAttendance();
-}
-/*
-    PART 3 FUNCTIONS (Member)
-*/
 int findStudentIndex(int id) {
     for (int i = 0; i < recordCount; i++) {
         if (attendance[i].id == id)

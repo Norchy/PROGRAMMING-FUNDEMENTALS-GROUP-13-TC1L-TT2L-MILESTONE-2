@@ -690,7 +690,7 @@ void IntroductionProcess(string &sheetName, Column columns[], AttendanceRow atte
         recordCount = 0;
     }
 
-    int choice;
+    string choice;
     do {
         cout << "---------------------------------\n";
         cout << "1. Display Attendance\n";
@@ -700,31 +700,36 @@ void IntroductionProcess(string &sheetName, Column columns[], AttendanceRow atte
         cout << "Choose: ";
         cin >> choice;
 
-        switch (choice) {
-            case 1:
-                displayCSV(attendanceSheet, rowCount, columns, colCount);
-                break;
-
-            case 2:
-                updateRowCSV(attendanceSheet, rowCount, columns, colCount);
-                saveSheetToFile(filename, attendanceSheet, rowCount, columns, colCount);
-                break;
-
-            case 3:
-                deleteRowCSV(attendanceSheet, rowCount);
-                saveSheetToFile(filename, attendanceSheet, rowCount, columns, colCount);
-                break;
-
-            case 4:
-                saveSheetToFile(filename, attendanceSheet, rowCount, columns, colCount);
-                cout << "Attendance data saved. Exiting...\n";
-                return;
-
-            default:
-                cout << "Invalid choice.\n";
+        if (choice == "1")
+        {
+            displayCSV(attendanceSheet, rowCount, columns, colCount);
         }
 
-    } while (choice != 0);
+        else if (choice == "2")
+        {
+            updateRowCSV(attendanceSheet, rowCount, columns, colCount);
+            saveSheetToFile(filename, attendanceSheet, rowCount, columns, colCount);
+        }
+
+        else if (choice == "3")
+        {
+            deleteRowCSV(attendanceSheet, rowCount);
+            saveSheetToFile(filename, attendanceSheet, rowCount, columns, colCount);
+        }
+
+
+        else if (choice == "4")
+        {
+            saveSheetToFile(filename, attendanceSheet, rowCount, columns, colCount);
+            cout << "Attendance data saved. Exiting...\n";
+            return;
+        }
+
+        else
+            cout << "Invalid choice.\n";
+
+
+    } while (true);
 }
 
 void introduction(string &sheetName, Column columns[], AttendanceRow attendanceSheet[], int &rowCount)
